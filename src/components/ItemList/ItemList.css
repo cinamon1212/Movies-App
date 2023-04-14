@@ -1,0 +1,72 @@
+.card {
+  display: flex;
+  flex-direction: row;
+  width: 485px;
+  height: 280px;
+  padding: 12px 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: sans-serif;
+}
+
+.release {
+  font-size: 16px;
+  color: #827e7e;
+  margin-bottom: 10px;
+}
+
+.title {
+  max-width: 235px;
+  font-size: 20px;
+  margin-bottom: 15px;
+  margin-top: 5px;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  line-height: 22px;
+}
+.description {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+.genre {
+  margin-bottom: 10px;
+}
+
+.info {
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-left: 20px;
+}
+
+.grade {
+  position: absolute;
+  right: 0;
+  font-size: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #000000;
+}
+
+.terrible-grade {
+  border: 2px solid #e90000;
+}
+
+.bad-grade {
+  border: 2px solid #e97e00;
+}
+
+.good-grade {
+  border: 2px solid #e9d100;
+}
+
+.perfect-grade {
+  border: 2px solid #66e900;
+}
