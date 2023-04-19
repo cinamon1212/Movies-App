@@ -18,7 +18,7 @@ class PaginationSwiper extends Component {
         onChange={this.onChange}
         total={this.props.totalPages * 20}
         showSizeChanger={false}
-        // hideOnSinglePage
+        hideOnSinglePage
         defaultPageSize={20}
       />
     );

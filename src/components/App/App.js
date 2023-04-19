@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Offline } from 'react-detect-offline';
+// import { Offline } from 'react-detect-offline';
 import { Tabs } from 'antd';
 
 import Search from '../Search/Search';
@@ -7,6 +7,7 @@ import Rated from '../Rated/Rated';
 import MovieService from '../../service';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import NetworkStatus from '../NetworkStatus/NetworkStatus';
+import { MovieServiceProvider, MovieServiceConsumer } from '../MovieServiceContext/MovieServiceContext';
 
 import './App.css';
 
@@ -14,26 +15,102 @@ class App extends Component {
   movieService = new MovieService();
 
   state = {
-    ratedMovies: [],
+    ratedMoviesArray: JSON.parse(localStorage.getItem('ratedMoviesArray'))
+      ? JSON.parse(localStorage.getItem('ratedMoviesArray'))
+      : [],
     hasError: false,
-    guestSessionId: null,
+
+    // Search
+    totalResults: null,
+    totalPages: null,
+    results: [],
+    ratedResults: [],
+    loading: true,
+    isNotFound: false,
+    query: 'return',
+    currentPage: 1,
+
+    genre: [],
   };
 
   componentDidMount() {
-    this.guestSession();
+    localStorage.clear();
+    this.movieService
+      .getAllMovies(1, this.state.query)
+      .then((res) => this.request(res, this.state.query))
+      .catch((er) => {
+        console.log(er);
+      });
+
+    this.movieService.getGenre().then((res) => {
+      this.setState({
+        genre: res,
+      });
+      localStorage.setItem('genre', JSON.stringify(res));
+    });
   }
 
-  guestSession = () => {
-    this.movieService.getGuestSessionId().then((res) => {
+  request = (res, newQuery) => {
+    localStorage.setItem('pageResults', JSON.stringify(res.results));
+
+    this.setState({
+      totalResults: res.total_results,
+      totalPages: res.total_pages,
+      results: res.results,
+      loading: false,
+      query: newQuery,
+    });
+
+    if (!res.results.length) {
       this.setState({
-        guestSessionId: res,
+        isNotFound: true,
       });
+    } else {
+      this.setState({
+        isNotFound: false,
+      });
+    }
+  };
+
+  changeLoading = () => {
+    this.setState({
+      loading: true,
     });
   };
 
-  changeRatedMovies = (rated) => {
+  changeCurrentPage = (page) => {
     this.setState({
-      ratedMovies: rated,
+      currentPage: page,
+    });
+  };
+
+  updateMovies = (res) => {
+    localStorage.setItem('pageResults', JSON.stringify(res));
+    this.setState({
+      ratedResults: res,
+      loading: false,
+    });
+  };
+
+  updateRatedMovies = (res) => {
+    localStorage.setItem('ratedPage', JSON.stringify(res));
+  };
+
+  addRatedMovie = (res) => {
+    this.setState({
+      ratedMoviesArray: [res, ...this.state.ratedMoviesArray],
+    });
+  };
+
+  changeRatedMovieRating = (cardId, newRate) => {
+    const arr = this.state.ratedMoviesArray;
+
+    arr.forEach((element) => {
+      if (element.id === cardId) element.rating = newRate;
+    });
+
+    this.setState({
+      ratedMoviesArray: arr,
     });
   };
 
@@ -43,28 +120,64 @@ class App extends Component {
         key: '1',
         label: 'Search',
         children: (
-          <Search
-            movieService={this.movieService}
-            guestSessionId={this.state.guestSessionId}
-            changeRatedMovies={this.changeRatedMovies}
-          />
+          <MovieServiceConsumer>
+            {(movieService) => {
+              return (
+                <Search
+                  state={this.state}
+                  movieService={movieService}
+                  addRatedMovie={this.addRatedMovie}
+                  changeRatedMovieRating={this.changeRatedMovieRating}
+                  request={this.request}
+                  changeLoading={this.changeLoading}
+                  changeCurrentPage={this.changeCurrentPage}
+                  updateMovies={this.updateMovies}
+                />
+              );
+            }}
+          </MovieServiceConsumer>
         ),
       },
       {
         key: '2',
         label: 'Rated',
-        children: <Rated ratedMovies={this.state.ratedMovies} guestSessionId={this.state.guestSessionId} />,
+        children: (
+          <MovieServiceConsumer>
+            {(movieService) => {
+              return (
+                <Rated
+                  movieService={movieService}
+                  genre={this.state.genre}
+                  ratedMoviesArray={this.state.ratedMoviesArray}
+                  addRatedMovie={this.addRatedMovie}
+                  changeRatedMovieRating={this.changeRatedMovieRating}
+                  currentPage={this.state.currentPage}
+                  changeLoading={this.changeLoading}
+                  changeCurrentPage={this.changeCurrentPage}
+                  updateRatedMovies={this.updateRatedMovies}
+                />
+              );
+            }}
+          </MovieServiceConsumer>
+        ),
       },
     ];
 
-    const tabs = <Tabs defaultActiveKey="1" items={items} centered style={{ paddingTop: '10px' }} />;
+    const tabs = (
+      // destroyInactiveTabPane
+      <Tabs defaultActiveKey="1" items={items} centered style={{ paddingTop: '10px' }} destroyInactiveTabPane />
+    );
     const page = this.state.hasError ? <ErrorMessage /> : tabs;
+    const isOnline = navigator.onLine ? page : <NetworkStatus />;
 
     return (
-      <div className="app">
-        <Offline>{<NetworkStatus />}</Offline>
-        {page}
-      </div>
+      <MovieServiceProvider value={this.movieService}>
+        <div className="app">
+          {/* <Offline>{<NetworkStatus />}</Offline>
+          {page} */}
+          {isOnline}
+        </div>
+      </MovieServiceProvider>
     );
   }
 }

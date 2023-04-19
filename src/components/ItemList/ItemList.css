@@ -6,31 +6,49 @@
   padding: 12px 20px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
   font-family: sans-serif;
+  font-size: 14px;
 }
 
 .release {
-  font-size: 16px;
   color: #827e7e;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .title {
   max-width: 235px;
-  font-size: 20px;
-  margin-bottom: 15px;
+  font-size: 18px;
+  margin-bottom: 18px;
   margin-top: 5px;
-  color: rgba(0, 0, 0, 0.88);
+  color: rgba(0, 0, 0, 0.7);
   font-weight: 600;
   line-height: 22px;
 }
 .description {
   display: block;
-  font-size: 15px;
+
   margin-bottom: 15px;
 }
 
+.genre-container {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  font-size: 12px;
+  flex-wrap: wrap;
+  color: rgba(0, 0, 0, 0.88);
+}
+
 .genre {
-  margin-bottom: 10px;
+  width: auto;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  padding: 0 5px;
+}
+
+.unknown-genre {
+  color: #827e7e;
 }
 
 .info {

@@ -5,6 +5,10 @@ import { Image, Rate } from 'antd';
 import './ItemList.css';
 
 export default class ItemList extends Component {
+  state = {
+    genreArray: [],
+  };
+
   componentDidMount() {
     function colorGrade() {
       const gr = document.querySelectorAll('.grade');
@@ -22,35 +26,44 @@ export default class ItemList extends Component {
     colorGrade();
   }
 
-  onChange(movieId, rate) {
-    const guestId = this.props.guestSessionId;
+  onChange = (id, rating) => {
+    let prop = this.props.item;
+    prop = { ...prop, rating };
 
-    const postRate = fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}/rating?api_key=cd28b874038213b9d99f6a967671e4df&guest_session_id=${guestId}`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ value: rate }),
+    const propArr = this.props.ratedMoviesArray;
 
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
+    let arr = JSON.parse(JSON.stringify(propArr));
+    if (!propArr.length) {
+      this.props.addRatedMovie(prop);
+      arr = [prop];
+    } else {
+      let flag = 0;
+
+      propArr.forEach((element, i) => {
+        if (element.id === prop.id) {
+          arr[i].rating = prop.rating;
+          this.props.changeRatedMovieRating(id, rating);
+          flag++;
+        }
+      });
+
+      if (!flag) {
+        this.props.addRatedMovie(prop);
+        arr = [prop, ...arr];
       }
-    );
-    postRate
-      .then(() => {
-        const getRate = fetch(
-          `https://api.themoviedb.org/3/guest_session/${guestId}/rated/movies?api_key=cd28b874038213b9d99f6a967671e4df`
-        );
-        return getRate;
-      })
-      .then((res) => console.log(res));
-  }
+    }
+
+    localStorage.setItem('ratedMoviesArray', JSON.stringify(arr));
+    localStorage.setItem('ratedPage', JSON.stringify(arr));
+  };
 
   render() {
-    const { title, release, description, poster, rate, movieId, rating } = this.props;
+    const { title, release, description, poster, rate, movieId, ratedMoviesArray, genreIds } = this.props;
 
     const text = mySlice(description);
+
     const imageUrl = `https://image.tmdb.org/t/p/w500${poster}`;
+    const fallbackImg = 'https://via.placeholder.com/180x280/ebebeb/969696?text=no+picture';
 
     let strRelease;
     let month;
@@ -96,12 +109,31 @@ export default class ItemList extends Component {
 
     const finalRating = sortRate(rate);
 
+    let defaultValue;
+
+    if (ratedMoviesArray) {
+      ratedMoviesArray.forEach((element) => {
+        if (element.id === movieId) defaultValue = element.rating;
+      });
+    }
+
+    let cardGenre = [];
+    const localGenre = JSON.parse(localStorage.getItem('genre'));
+
+    if (localGenre) {
+      localGenre.genres.forEach((element) => {
+        if (genreIds.indexOf(element.id) !== -1) cardGenre.push(element.name);
+      });
+      // ! РАЗБИТЬ CARDGANRE НА МАССИВ ЧЕРЕЗ ПРОБЕЛ
+    }
+    if (!genreIds.length) cardGenre = ['Genres are unknown'];
+
     return (
       <div className="card">
         <Image
-          src={imageUrl}
+          src={poster ? imageUrl : fallbackImg}
           style={{ height: '280px', width: '180px' }}
-          fallback="https://via.placeholder.com/180x280/ebebeb/969696?text=no+picture"
+          // fallback="https://via.placeholder.com/180x280/ebebeb/969696?text=no+picture"
         />
 
         <div className="info">
@@ -110,12 +142,21 @@ export default class ItemList extends Component {
 
           <span className="release">{release ? `${fullMonth} ${day}, ${year}` : 'Release date is unknown'}</span>
 
-          <span className="genre">GENRE</span>
+          <div className="genre-container">
+            {cardGenre.map((item, i) => {
+              let className = 'genre';
+              if (!genreIds.length) className = 'unknown-genre';
+              return (
+                <div className={className} key={i}>
+                  {item}
+                </div>
+              );
+            })}
+          </div>
           <span className="description">{text}</span>
           <Rate
             allowHalf
-            defaultValue={0}
-            value={rating}
+            defaultValue={defaultValue ? defaultValue : 0}
             count={10}
             onChange={(value) => this.onChange(movieId, value)}
           />
