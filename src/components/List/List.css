@@ -3,3 +3,16 @@
   gap: 32px;
   flex-wrap: wrap;
 }
+
+@media (max-width: 1150px) {
+  .list {
+    flex-direction: row;
+    /* align-items: center; */
+  }
+}
+
+@media (max-width: 600px) {
+  .list {
+    width: 100%;
+  }
+}

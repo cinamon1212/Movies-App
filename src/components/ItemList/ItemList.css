@@ -1,7 +1,8 @@
 .card {
   display: flex;
   flex-direction: row;
-  width: 485px;
+  width: auto;
+  max-width: 485px;
   height: 280px;
   padding: 12px 20px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
@@ -12,6 +13,16 @@
 .release {
   color: #827e7e;
   margin-bottom: 15px;
+}
+
+.ant-image {
+  height: 280px !important;
+  width: 180px !important;
+}
+
+.ant-image-img {
+  height: 280px !important;
+  width: 180px !important;
 }
 
 .title {
@@ -87,4 +98,147 @@
 
 .perfect-grade {
   border: 2px solid #66e900;
+}
+
+@media (max-width: 1150px) {
+  .card {
+    margin: 0 auto;
+    width: 700px;
+    max-width: none;
+  }
+
+  .genre-container {
+    margin-bottom: 25px;
+  }
+
+  .info {
+    width: 100%;
+  }
+
+  .title {
+    max-width: 85%;
+  }
+
+  .rate {
+    margin: 0 auto;
+    margin-top: auto;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 800px) {
+  .card {
+    margin: 0 auto;
+    width: inherit;
+    max-width: 485px;
+  }
+
+  .genre-container {
+    margin-bottom: 15px;
+  }
+  .rate {
+    margin: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .ant-image {
+    width: 90px !important;
+    height: 140px !important;
+  }
+
+  .ant-image-img {
+    width: 90px !important;
+    height: 140px !important;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+    height: 245px;
+  }
+
+  .genre-container {
+    font-size: 11px;
+  }
+
+  .title {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
+
+  .release {
+    margin-bottom: 10px;
+  }
+
+  .description {
+    position: absolute;
+    top: 150px;
+    left: -110px;
+  }
+
+  .rate {
+    position: absolute;
+    top: 215px;
+    left: -80px;
+    /* font-size: 15px; */
+  }
+
+  .grade {
+    width: 25px;
+    height: 25px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 420px) {
+  .genre-container {
+    font-size: 10px;
+  }
+  .card {
+    font-size: 11px;
+  }
+  .title {
+    font-size: 13px;
+    line-height: 17px;
+  }
+  .rate {
+    font-size: 15px;
+  }
+  .grade {
+    width: 22px;
+    height: 22px;
+    font-size: 9px;
+  }
+
+  a {
+    font-size: 11px;
+  }
+  .ant-pagination > li {
+    min-width: 27px !important;
+    width: 27px !important;
+    height: 27px !important;
+    line-height: 27px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .genre-container {
+    font-size: 8px;
+  }
+  .card {
+    font-size: 9px;
+    height: 220px;
+  }
+  .title {
+    font-size: 11px;
+    line-height: 13px;
+  }
+  .rate {
+    top: 200px;
+    font-size: 13px;
+  }
 }

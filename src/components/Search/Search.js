@@ -18,19 +18,20 @@ export default class Search extends Component {
       changeCurrentPage,
       updateMovies,
       changeRatedMovieRating,
+      allGenres,
     } = this.props;
-    const { totalPages, results, loading, isNotFound, query, currentPage, ratedMoviesArray, genre } = state;
+    const { totalPages, loading, isNotFound, query, currentPage, ratedMoviesArray, genre } = state;
 
     const loader = loading ? <Loader /> : null;
 
     const content = !loading ? (
       <List
-        movies={results}
         ratedMoviesArray={ratedMoviesArray}
         addRatedMovie={addRatedMovie}
         changeRatedMovieRating={changeRatedMovieRating}
         genre={genre}
         movieService={movieService}
+        allGenres={allGenres}
       />
     ) : null;
 
@@ -50,6 +51,7 @@ export default class Search extends Component {
         {content}
 
         <PaginationSwiper
+          hideOnSinglePage
           totalPages={totalPages}
           updateMovies={updateMovies}
           changeLoading={changeLoading}

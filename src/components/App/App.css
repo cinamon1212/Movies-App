@@ -1,8 +1,9 @@
 .app {
   padding: 0 30px;
-  /* padding-top: 10px; */
+  padding-bottom: 10px;
   margin: 0 auto;
-  width: 1090px;
+  width: auto;
+  max-width: 1083px;
   background-color: white;
 }
 

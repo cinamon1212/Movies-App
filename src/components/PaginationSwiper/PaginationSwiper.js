@@ -20,6 +20,7 @@ class PaginationSwiper extends Component {
         showSizeChanger={false}
         hideOnSinglePage
         defaultPageSize={20}
+        style={{ marginTop: '10px' }}
       />
     );
   }

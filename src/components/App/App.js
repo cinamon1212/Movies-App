@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-// import { Offline } from 'react-detect-offline';
+import { Offline } from 'react-detect-offline';
 import { Tabs } from 'antd';
 
 import Search from '../Search/Search';
@@ -15,26 +15,26 @@ class App extends Component {
   movieService = new MovieService();
 
   state = {
-    ratedMoviesArray: JSON.parse(localStorage.getItem('ratedMoviesArray'))
-      ? JSON.parse(localStorage.getItem('ratedMoviesArray'))
-      : [],
     hasError: false,
 
-    // Search
     totalResults: null,
     totalPages: null,
-    results: [],
-    ratedResults: [],
+
     loading: true,
     isNotFound: false,
     query: 'return',
     currentPage: 1,
 
-    genre: [],
+    allGenres: [],
   };
 
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevState.allGenres.length && this.state.allGenres && this.state.allGenres.length) {
+      this.render();
+    }
+  }
+
   componentDidMount() {
-    localStorage.clear();
     this.movieService
       .getAllMovies(1, this.state.query)
       .then((res) => this.request(res, this.state.query))
@@ -44,9 +44,8 @@ class App extends Component {
 
     this.movieService.getGenre().then((res) => {
       this.setState({
-        genre: res,
+        allGenres: res.genres,
       });
-      localStorage.setItem('genre', JSON.stringify(res));
     });
   }
 
@@ -56,12 +55,13 @@ class App extends Component {
     this.setState({
       totalResults: res.total_results,
       totalPages: res.total_pages,
-      results: res.results,
       loading: false,
       query: newQuery,
     });
 
-    if (!res.results.length) {
+    const localRes = JSON.parse(localStorage.getItem('pageResults'));
+
+    if (!localRes.length) {
       this.setState({
         isNotFound: true,
       });
@@ -87,19 +87,12 @@ class App extends Component {
   updateMovies = (res) => {
     localStorage.setItem('pageResults', JSON.stringify(res));
     this.setState({
-      ratedResults: res,
       loading: false,
     });
   };
 
   updateRatedMovies = (res) => {
     localStorage.setItem('ratedPage', JSON.stringify(res));
-  };
-
-  addRatedMovie = (res) => {
-    this.setState({
-      ratedMoviesArray: [res, ...this.state.ratedMoviesArray],
-    });
   };
 
   changeRatedMovieRating = (cardId, newRate) => {
@@ -109,9 +102,7 @@ class App extends Component {
       if (element.id === cardId) element.rating = newRate;
     });
 
-    this.setState({
-      ratedMoviesArray: arr,
-    });
+    localStorage.setItem('ratedMoviesArray', arr);
   };
 
   render() {
@@ -126,12 +117,12 @@ class App extends Component {
                 <Search
                   state={this.state}
                   movieService={movieService}
-                  addRatedMovie={this.addRatedMovie}
                   changeRatedMovieRating={this.changeRatedMovieRating}
                   request={this.request}
                   changeLoading={this.changeLoading}
                   changeCurrentPage={this.changeCurrentPage}
                   updateMovies={this.updateMovies}
+                  allGenres={this.state.allGenres}
                 />
               );
             }}
@@ -147,14 +138,13 @@ class App extends Component {
               return (
                 <Rated
                   movieService={movieService}
-                  genre={this.state.genre}
-                  ratedMoviesArray={this.state.ratedMoviesArray}
-                  addRatedMovie={this.addRatedMovie}
                   changeRatedMovieRating={this.changeRatedMovieRating}
                   currentPage={this.state.currentPage}
                   changeLoading={this.changeLoading}
                   changeCurrentPage={this.changeCurrentPage}
                   updateRatedMovies={this.updateRatedMovies}
+                  loading={this.state.loading}
+                  allGenres={this.state.allGenres}
                 />
               );
             }}
@@ -164,18 +154,15 @@ class App extends Component {
     ];
 
     const tabs = (
-      // destroyInactiveTabPane
       <Tabs defaultActiveKey="1" items={items} centered style={{ paddingTop: '10px' }} destroyInactiveTabPane />
     );
     const page = this.state.hasError ? <ErrorMessage /> : tabs;
-    const isOnline = navigator.onLine ? page : <NetworkStatus />;
 
     return (
       <MovieServiceProvider value={this.movieService}>
         <div className="app">
-          {/* <Offline>{<NetworkStatus />}</Offline>
-          {page} */}
-          {isOnline}
+          <Offline>{<NetworkStatus />}</Offline>
+          {page}
         </div>
       </MovieServiceProvider>
     );

@@ -5,19 +5,35 @@ import ItemList from '../ItemList/ItemList';
 import './Rated.css';
 
 export default class Rated extends Component {
-  currentPage = 1;
+  state = {
+    currentPage: 1,
+    //  allGenres: []
+  };
 
   onPaginationChange = (PaginationPage) => {
     const ratedMovies = JSON.parse(localStorage.getItem('ratedMoviesArray'));
 
-    const sliceRatedMovies = (page, ratedMovies) => {
-      if (ratedMovies.length < 20) ratedMovies = ratedMovies.slice(0, ratedMovies.length);
-      else ratedMovies = ratedMovies.slice(20 * page, 20 * page + 20);
-      return ratedMovies;
+    const sliceRatedMovies = (page, ratedMovies, lastPage) => {
+      let res;
+
+      if (ratedMovies.length > 20 * page && page === 1) {
+        res = ratedMovies.slice(0, 20);
+      } else if (ratedMovies.length < 20 * page && page === 1) {
+        res = ratedMovies.slice(0, ratedMovies.length);
+      } else if (ratedMovies.length > 20 * page && page === lastPage) {
+        res = ratedMovies.slice(20 * page, ratedMovies.length);
+      } else if (ratedMovies.length > 20 * page && page !== lastPage) {
+        res = ratedMovies.slice(20 * (page - 1), 20 * (page - 1) + 20);
+      } else res = ratedMovies.slice(20 * (page - 1));
+
+      return res;
     };
-    const res = sliceRatedMovies(PaginationPage, ratedMovies);
-    this.props.updateRatedMovies(res);
-    this.currentPage = PaginationPage;
+
+    const resultRatedArray = sliceRatedMovies(PaginationPage, ratedMovies, this.total.length);
+    this.props.updateRatedMovies(resultRatedArray);
+    this.setState({
+      currentPage: PaginationPage,
+    });
 
     window.scroll(0, 0);
   };
@@ -27,41 +43,41 @@ export default class Rated extends Component {
   render() {
     const RatedPage = () => {
       const cards = JSON.parse(localStorage.getItem('ratedPage'));
-      if (cards) {
+      let res;
+      if (cards && cards.length > 20) {
+        res = cards.slice(0, 20);
+      } else res = cards;
+
+      if (res) {
         return (
-          <React.Fragment>
+          <div className="search">
             <div className="list">
-              {cards.map((item) => {
+              {res.map((item) => {
                 return (
                   <ItemList
                     key={item.id}
-                    title={item.title}
-                    description={item.overview}
-                    release={item.release_date}
-                    poster={item.poster_path}
-                    rate={item.vote_average}
-                    movieId={item.id}
-                    rating={item.rating}
-                    genreIds={item.genre_ids}
-                    genre={this.props.genre}
                     item={item}
                     ratedMoviesArray={this.props.ratedMoviesArray}
                     addRatedMovie={this.props.addRatedMovie}
                     changeRatedMovieRating={this.props.changeRatedMovieRating}
                     movieService={this.props.movieService}
+                    allGenres={this.props.allGenres}
                   />
                 );
               })}
             </div>
+
             <Pagination
-              current={this.currentPage}
+              hideOnSinglePage
+              current={this.state.currentPage}
               movieService={this.props.movieService}
               total={this.total.length}
               showSizeChanger={false}
               onChange={this.onPaginationChange}
               defaultPageSize={20}
+              style={{ marginTop: '10px' }}
             />
-          </React.Fragment>
+          </div>
         );
       } else
         return (
